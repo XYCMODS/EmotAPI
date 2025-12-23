@@ -526,7 +526,7 @@ async def perform_emote(team_code: str, uids: list, emote_id: int):
         join_packet = await GenJoinSquadsPacket(team_code, key, iv)
         await SEndPacKeT(None, online_writer, 'OnLine', join_packet)
 
-        await asyncio.sleep(0.09)  # ✅ server sync
+        await asyncio.sleep(0.17)  # ✅ server sync
 
         # 2️⃣ EMOTE (all users)
         for uid_str in uids:
@@ -534,7 +534,7 @@ async def perform_emote(team_code: str, uids: list, emote_id: int):
             emote_packet = await Emote_k(uid, emote_id, key, iv, region)
             await SEndPacKeT(None, online_writer, 'OnLine', emote_packet)
 
-        await asyncio.sleep(0.08)  # ✅ emote finish buffer
+        await asyncio.sleep(0.09)  # ✅ emote finish buffer
 
         # 3️⃣ LEAVE SQUAD (BOT UID ONLY)
         leave_packet = await ExiT(BOT_UID, key, iv)
