@@ -522,26 +522,31 @@ async def perform_emote(team_code: str, uids: list, emote_id: int):
         raise Exception("Bot not connected")
 
     try:
-        # 1. JOIN SQUAD (super fast)
-        EM = await GenJoinSquadsPacket(team_code, key, iv)
-        await SEndPacKeT(None, online_writer, 'OnLine', EM)
-        await asyncio.sleep(0.12)  # minimal sync delay
+        # 1️⃣ JOIN SQUAD
+        join_packet = await GenJoinSquadsPacket(team_code, key, iv)
+        await SEndPacKeT(None, online_writer, 'OnLine', join_packet)
 
-        # 2. PERFORM EMOTE instantly
+        await asyncio.sleep(0.09)  # ✅ server sync
+
+        # 2️⃣ EMOTE (all users)
         for uid_str in uids:
             uid = int(uid_str)
-            H = await Emote_k(uid, emote_id, key, iv, region)
-            await SEndPacKeT(None, online_writer, 'OnLine', H)
+            emote_packet = await Emote_k(uid, emote_id, key, iv, region)
+            await SEndPacKeT(None, online_writer, 'OnLine', emote_packet)
 
-        # 3. LEAVE SQUAD instantly (correct bot UID)
-        LV = await ExiT(BOT_UID, key, iv)
-        await SEndPacKeT(None, online_writer, 'OnLine', LV)
-        await asyncio.sleep(0.03)
+        await asyncio.sleep(0.08)  # ✅ emote finish buffer
 
-        return {"status": "success", "message": "Emote done & bot left instantly"}
+        # 3️⃣ LEAVE SQUAD (BOT UID ONLY)
+        leave_packet = await ExiT(BOT_UID, key, iv)
+        await SEndPacKeT(None, online_writer, 'OnLine', leave_packet)
+
+        return {
+            "status": "success",
+            "message": "Emote done & bot left squad successfully"
+        }
 
     except Exception as e:
-        raise Exception(f"Failed to perform emote: {str(e)}")
+        raise Exception(f"Emote flow failed: {str(e)}")
 
 
 @app.route('/join')
